@@ -47,18 +47,25 @@
       font-size: 20px;
       text-shadow: 0 0 10px #0f0;
     }
+
+    a {
+      display: inline-block;
+      margin-top: 15px;
+      color: #0ff;
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Username input only if not set -->
+  <!-- Username input -->
   <div id="nameInputBox">
     <h2>🔐 Enter Your Username (Only Once)</h2>
     <input type="text" id="usernameInput" placeholder="Enter unique name">
     <button onclick="saveUsername()">Start</button>
   </div>
 
-  <!-- Referral dashboard -->
+  <!-- Referral Dashboard -->
   <div class="box" style="display:none;" id="referralBox">
     <p><b>👤 Username:</b> <span id="userNameDisplay"></span></p>
     <p><b>Level:</b> <span id="level">0</span></p>
@@ -69,23 +76,12 @@
 
     <p><b>Your Referral Link:</b></p>
     <input type="text" id="refLink" readonly>
+
+    <a href="balance.html">📊 Go to Balance</a>
   </div>
 
   <script>
     let level = 0, referrals = 0, earnings = 0, userID = "";
-
-    function saveUsername() {
-      const input = document.getElementById("usernameInput").value.trim();
-      if (!input) return alert("Please enter a valid name");
-
-      // ✅ Only set once
-      if (!localStorage.getItem("userID")) {
-        localStorage.setItem("userID", input);
-        loadUser();
-      } else {
-        alert("Username already set and cannot be changed!");
-      }
-    }
 
     function getRateByLevel(lv) {
       if (lv === 0) return 100;
@@ -100,12 +96,41 @@
       document.getElementById("referrals").innerText = referrals;
       document.getElementById("earnings").innerText = earnings;
 
-      let siteBase = "https://eaning200.github.io/Earningy/"; // 🔁 তোমার সাইট URL এখানে বসাও
+      let siteBase = "https://eaning200.github.io/Earningy/referral.html"; // নিজের URL বসাও
       document.getElementById("refLink").value = siteBase + "?ref=" + userID;
 
-      // Show dashboard, hide input
       document.getElementById("referralBox").style.display = "block";
       document.getElementById("nameInputBox").style.display = "none";
+    }
+
+    function saveUsername() {
+      const input = document.getElementById("usernameInput").value.trim();
+      if (!input) return alert("Please enter a valid name");
+
+      if (!localStorage.getItem("userID")) {
+        localStorage.setItem("userID", input);
+        userID = input;
+
+        // If referred
+        const pendingRef = localStorage.getItem("pendingRef");
+        if (pendingRef && pendingRef !== input) {
+          let refCount = parseInt(localStorage.getItem("referrals_" + pendingRef)) || 0;
+          let refEarn = parseInt(localStorage.getItem("earnings_" + pendingRef)) || 0;
+          let refLevel = parseInt(localStorage.getItem("level_" + pendingRef)) || 0;
+          let rate = getRateByLevel(refLevel);
+
+          refCount += 1;
+          refEarn += rate;
+
+          localStorage.setItem("referrals_" + pendingRef, refCount);
+          localStorage.setItem("earnings_" + pendingRef, refEarn);
+          localStorage.removeItem("pendingRef");
+        }
+
+        loadUser();
+      } else {
+        alert("Username already set and cannot be changed!");
+      }
     }
 
     function activateLevel() {
@@ -132,25 +157,13 @@
       }
     }
 
-    // Referral Check
+    // Handle referral on page load
     const urlParams = new URLSearchParams(window.location.search);
     const ref = urlParams.get("ref");
-
-    if (ref && !localStorage.getItem("referred_" + ref)) {
-      let refCount = parseInt(localStorage.getItem("referrals_" + ref)) || 0;
-      let refEarn = parseInt(localStorage.getItem("earnings_" + ref)) || 0;
-      let refLevel = parseInt(localStorage.getItem("level_" + ref)) || 0;
-      let rate = getRateByLevel(refLevel);
-
-      refCount += 1;
-      refEarn += rate;
-
-      localStorage.setItem("referrals_" + ref, refCount);
-      localStorage.setItem("earnings_" + ref, refEarn);
-      localStorage.setItem("referred_" + ref, "yes");
+    if (ref && !localStorage.getItem("userID")) {
+      localStorage.setItem("pendingRef", ref);
     }
 
-    // On page load
     window.onload = loadUser;
   </script>
 </body>
