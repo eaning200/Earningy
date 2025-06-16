@@ -1,34 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Referral System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       background: #111;
       color: #fff;
       font-family: sans-serif;
-      text-align: center;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 20px;
     }
 
     .box {
       background: #1e1e1e;
-      padding: 20px;
+      padding: 30px;
       border-radius: 12px;
-      margin: auto;
       max-width: 500px;
-      box-shadow: 0 0 20px rgba(0,255,255,0.1);
+      width: 100%;
+      box-shadow: 0 0 20px rgba(0,255,255,0.2);
+      text-align: center;
     }
 
     input, button {
-      padding: 10px;
-      margin-top: 10px;
+      padding: 12px;
+      margin-top: 12px;
       border-radius: 8px;
       border: none;
+      font-size: 16px;
     }
 
     input {
-      width: 80%;
+      width: 100%;
       background: #222;
       color: #0ff;
       font-weight: bold;
@@ -40,17 +53,18 @@
       color: black;
       font-weight: bold;
       cursor: pointer;
+      width: 100%;
     }
 
     #earnings {
       color: #0f0;
-      font-size: 20px;
+      font-size: 22px;
       text-shadow: 0 0 10px #0f0;
     }
 
     a {
-      display: inline-block;
-      margin-top: 15px;
+      display: block;
+      margin-top: 20px;
       color: #0ff;
       text-decoration: underline;
     }
@@ -58,14 +72,12 @@
 </head>
 <body>
 
-  <!-- Username input -->
-  <div id="nameInputBox">
-    <h2>🔐 Enter Your Username (Only Once)</h2>
-    <input type="text" id="usernameInput" placeholder="Enter unique name">
+  <div class="box" id="nameInputBox">
+    <h2>🔐 Enter Your Username</h2>
+    <input type="text" id="usernameInput" placeholder="Enter your unique name">
     <button onclick="saveUsername()">Start</button>
   </div>
 
-  <!-- Referral Dashboard -->
   <div class="box" style="display:none;" id="referralBox">
     <p><b>👤 Username:</b> <span id="userNameDisplay"></span></p>
     <p><b>Level:</b> <span id="level">0</span></p>
@@ -76,7 +88,6 @@
 
     <p><b>Your Referral Link:</b></p>
     <input type="text" id="refLink" readonly>
-
     <a href="Balance.html">📊 Go to Balance</a>
   </div>
 
@@ -96,7 +107,7 @@
       document.getElementById("referrals").innerText = referrals;
       document.getElementById("earnings").innerText = earnings;
 
-      let siteBase = "https://eaning200.github.io/Earningy/referral.html"; // নিজের URL বসাও
+      let siteBase = "https://eaning200.github.io/Earningy/referral.html";
       document.getElementById("refLink").value = siteBase + "?ref=" + userID;
 
       document.getElementById("referralBox").style.display = "block";
@@ -111,7 +122,6 @@
         localStorage.setItem("userID", input);
         userID = input;
 
-        // If referred
         const pendingRef = localStorage.getItem("pendingRef");
         if (pendingRef && pendingRef !== input) {
           let refCount = parseInt(localStorage.getItem("referrals_" + pendingRef)) || 0;
@@ -157,7 +167,6 @@
       }
     }
 
-    // Handle referral on page load
     const urlParams = new URLSearchParams(window.location.search);
     const ref = urlParams.get("ref");
     if (ref && !localStorage.getItem("userID")) {
